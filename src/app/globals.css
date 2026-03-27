@@ -1,0 +1,404 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Lato', sans-serif; }
+/* ============================================================
+   LANDING PAGE — tambahkan ke bagian bawah globals.css
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Root ── */
+.landing-root {
+  min-height: 100vh;
+  background: #060c1a;
+  color: #e8edf8;
+  font-family: Georgia, "Times New Roman", serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Noise texture ── */
+.landing-root .noise {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
+}
+
+/* ── Grid lines ── */
+.landing-root .grid-lines {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 6vw;
+}
+.landing-root .grid-lines span {
+  display: block;
+  width: 1px;
+  height: 100%;
+  background: rgba(79, 142, 247, 0.05);
+}
+
+/* ── Header ── */
+.lp-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 6vw;
+  background: rgba(6, 12, 26, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(79, 142, 247, 0.1);
+}
+.logo-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Courier New", monospace;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #e8edf8;
+}
+.lp-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.lp-nav a {
+  color: rgba(232, 237, 248, 0.55);
+  text-decoration: none;
+  font-size: 13px;
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.06em;
+  transition: color 0.2s;
+}
+.lp-nav a:hover { color: #e8edf8; }
+.lp-nav .nav-cta {
+  background: rgba(79, 142, 247, 0.15);
+  border: 1px solid rgba(79, 142, 247, 0.4);
+  color: #7cb4ff;
+  padding: 7px 18px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+.lp-nav .nav-cta:hover {
+  background: rgba(79, 142, 247, 0.3);
+  color: #fff;
+}
+
+/* ── Hero ── */
+.lp-hero {
+  position: relative;
+  z-index: 1;
+  min-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 6vw 60px;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgba(79, 142, 247, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 80% 60%, rgba(79, 142, 247, 0.05) 0%, transparent 60%);
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(79, 142, 247, 0.3);
+  background: rgba(79, 142, 247, 0.07);
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #7cb4ff;
+  margin-bottom: 36px;
+  animation: lp-fadeUp 0.6s ease both;
+}
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4f8ef7;
+  box-shadow: 0 0 8px #4f8ef7;
+  animation: lp-pulse 2s infinite;
+}
+
+.hero-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 28px;
+}
+.title-line {
+  display: block;
+  font-size: clamp(38px, 7vw, 86px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #e8edf8;
+  animation: lp-fadeUp 0.6s ease both;
+}
+.title-line:nth-child(1) { animation-delay: 0.08s; }
+.title-line:nth-child(2) { animation-delay: 0.16s; }
+.title-line:nth-child(3) { animation-delay: 0.24s; }
+.title-line.accent {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(79, 142, 247, 0.6);
+  font-style: italic;
+}
+
+.hero-sub {
+  max-width: 520px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(232, 237, 248, 0.5);
+  font-family: "Courier New", monospace;
+  margin-bottom: 44px;
+  animation: lp-fadeUp 0.6s 0.32s ease both;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 64px;
+  animation: lp-fadeUp 0.6s 0.4s ease both;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 30px;
+  background: #4f8ef7;
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: 0 0 40px rgba(79, 142, 247, 0.35);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.btn-primary:hover {
+  background: #6aa3ff;
+  box-shadow: 0 0 60px rgba(79, 142, 247, 0.55);
+  transform: translateY(-1px);
+}
+.btn-primary.large { padding: 16px 36px; font-size: 14px; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border: 1px solid rgba(232, 237, 248, 0.15);
+  color: rgba(232, 237, 248, 0.6);
+  border-radius: 8px;
+  text-decoration: none;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-ghost:hover {
+  border-color: rgba(232, 237, 248, 0.35);
+  color: #e8edf8;
+}
+
+/* ── Stats strip ── */
+.stats-strip {
+  display: flex;
+  border: 1px solid rgba(79, 142, 247, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  animation: lp-fadeUp 0.6s 0.5s ease both;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 40px;
+  border-right: 1px solid rgba(79, 142, 247, 0.1);
+  background: rgba(79, 142, 247, 0.04);
+}
+.stat-item:last-child { border-right: none; }
+.stat-val {
+  font-size: 28px;
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+  color: #7cb4ff;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-label {
+  font-size: 11px;
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.08em;
+  color: rgba(232, 237, 248, 0.35);
+  text-transform: uppercase;
+}
+
+/* ── Features ── */
+.lp-features {
+  position: relative;
+  z-index: 1;
+  padding: 100px 6vw;
+  border-top: 1px solid rgba(79, 142, 247, 0.08);
+}
+.section-tag {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #4f8ef7;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: clamp(26px, 4vw, 44px);
+  font-weight: 400;
+  color: #e8edf8;
+  margin-bottom: 56px;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  border: 1px solid rgba(79, 142, 247, 0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(79, 142, 247, 0.08);
+}
+.feature-card {
+  background: #060c1a;
+  padding: 36px 32px;
+  transition: background 0.2s;
+}
+.feature-card:hover { background: rgba(79, 142, 247, 0.05); }
+.feature-icon {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+.feature-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #d4ddf5;
+  margin-bottom: 10px;
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.04em;
+}
+.feature-card p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(232, 237, 248, 0.42);
+  font-family: "Courier New", monospace;
+}
+
+/* ── CTA Banner ── */
+.lp-cta {
+  position: relative;
+  z-index: 1;
+  padding: 100px 6vw;
+  border-top: 1px solid rgba(79, 142, 247, 0.08);
+  background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(79, 142, 247, 0.08) 0%, transparent 70%);
+}
+.cta-inner {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+}
+.cta-eyebrow {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #4f8ef7;
+  margin-bottom: 16px;
+}
+.cta-inner h2 {
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 400;
+  color: #e8edf8;
+  margin-bottom: 20px;
+}
+.cta-desc {
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.75;
+  color: rgba(232, 237, 248, 0.45);
+  margin-bottom: 36px;
+}
+
+/* ── Footer ── */
+.lp-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 6vw;
+  border-top: 1px solid rgba(79, 142, 247, 0.08);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(232, 237, 248, 0.4);
+}
+.lp-footer p {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: rgba(232, 237, 248, 0.2);
+  letter-spacing: 0.04em;
+}
+
+/* ── Keyframes (prefixed agar tidak bentrok) ── */
+@keyframes lp-fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes lp-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .stats-strip { flex-direction: column; }
+  .stat-item {
+    border-right: none;
+    border-bottom: 1px solid rgba(79, 142, 247, 0.1);
+  }
+  .stat-item:last-child { border-bottom: none; }
+  .lp-nav a:not(.nav-cta) { display: none; }
+  .title-line.accent { -webkit-text-stroke-width: 1px; }
+}
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Nunito+Sans:wght@300;400;600&display=swap');
+ 
+html, body { height: 100%; overflow-x: hidden; }

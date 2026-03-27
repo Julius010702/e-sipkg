@@ -1,0 +1,437 @@
+// prisma/schema.prisma
+// E-SIPKG — Prisma v6 (kompatibel dengan new PrismaClient())
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// ENUM
+// ==========================================
+
+enum Role {
+  ADMIN_PUSAT
+  ADMIN_SEKOLAH
+}
+
+enum StatusPegawai {
+  PNS
+  PPPK
+}
+
+enum JenisSekolah {
+  SMA
+  SMK
+  SLB
+}
+
+enum JenisJabatan {
+  STRUKTURAL
+  FUNGSIONAL
+  PELAKSANA
+}
+
+enum KondisiFisik {
+  BAIK
+  SEDANG
+  KURANG
+}
+
+enum EfektivitasJabatan {
+  A
+  B
+  C
+  D
+  E
+}
+
+enum StatusUser {
+  AKTIF
+  NONAKTIF
+}
+
+enum StatusKebutuhan {
+  KURANG
+  LEBIH
+  SESUAI
+}
+
+// ==========================================
+// MASTER DATA
+// ==========================================
+
+model TypeUnitKerja {
+  id        String   @id @default(cuid())
+  nama      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  opd       OPD[]
+
+  @@map("type_unit_kerja")
+}
+
+model OPD {
+  id              String        @id @default(cuid())
+  indukUnitKerja  String?
+  kawil           String?
+  nama            String
+  typeUnitKerjaId String
+  typeUnitKerja   TypeUnitKerja @relation(fields: [typeUnitKerjaId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  unitOrganisasi UnitOrganisasi[]
+  sekolah        Sekolah[]
+  jabatan        Jabatan[]
+
+  @@map("opd")
+}
+
+model Eselon {
+  id             String           @id @default(cuid())
+  kode           String           @unique
+  nama           String
+  createdAt      DateTime         @default(now())
+  unitOrganisasi UnitOrganisasi[]
+
+  @@map("eselon")
+}
+
+model UnitOrganisasi {
+  id        String   @id @default(cuid())
+  opdId     String
+  opd       OPD      @relation(fields: [opdId], references: [id], onDelete: Restrict)
+  eselonId  String
+  eselon    Eselon   @relation(fields: [eselonId], references: [id], onDelete: Restrict)
+  namaUnit  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jabatan Jabatan[]
+  sekolah Sekolah[]
+
+  @@map("unit_organisasi")
+}
+
+model Urusan {
+  id        String    @id @default(cuid())
+  nama      String
+  createdAt DateTime  @default(now())
+  jabatan   Jabatan[]
+
+  @@map("urusan")
+}
+
+// ==========================================
+// SEKOLAH & USER
+// ==========================================
+
+model Sekolah {
+  id               String          @id @default(cuid())
+  npsn             String?         @unique
+  nama             String
+  jenisSekolah     JenisSekolah
+  opdId            String?
+  opd              OPD?            @relation(fields: [opdId], references: [id])
+  unitOrganisasiId String?
+  unitOrganisasi   UnitOrganisasi? @relation(fields: [unitOrganisasiId], references: [id])
+  alamat           String?
+  kecamatan        String?
+  kabupatenKota    String?
+  provinsi         String          @default("Nusa Tenggara Timur")
+  telepon          String?
+  email            String?
+  logoUrl          String?
+  kepalaSekolah    String?
+  wakilKepala      String?
+  sekretaris       String?
+  aktif            Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  users           User[]
+  jabatan         Jabatan[]
+  guru            Guru[]
+  perhitunganGuru PerhitunganGuru[]
+
+  @@map("sekolah")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  nama      String
+  email     String     @unique
+  password  String
+  role      Role
+  status    StatusUser @default(AKTIF)
+  sekolahId String?
+  sekolah   Sekolah?   @relation(fields: [sekolahId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("users")
+}
+
+// ==========================================
+// JABATAN
+// ==========================================
+
+model Jabatan {
+  id               String          @id @default(cuid())
+  indukJabatanId   String?
+  indukJabatan     Jabatan?        @relation("IndukJabatan", fields: [indukJabatanId], references: [id])
+  subJabatan       Jabatan[]       @relation("IndukJabatan")
+  kodeJabatan      String          @unique
+  namaJabatan      String
+  jenisJabatan     JenisJabatan
+  unitOrganisasiId String?
+  unitOrganisasi   UnitOrganisasi? @relation(fields: [unitOrganisasiId], references: [id])
+  opdId            String?
+  opd              OPD?            @relation(fields: [opdId], references: [id])
+  sekolahId        String?
+  sekolah          Sekolah?        @relation(fields: [sekolahId], references: [id])
+  urusanId         String?
+  urusan           Urusan?         @relation(fields: [urusanId], references: [id])
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  anjab    Anjab?
+  bezeting Bezeting[]
+  pemangku Pemangku[]
+
+  @@map("jabatan")
+}
+
+// ==========================================
+// ANJAB
+// ==========================================
+
+model Anjab {
+  id        String  @id @default(cuid())
+  jabatanId String  @unique
+  jabatan   Jabatan @relation(fields: [jabatanId], references: [id], onDelete: Cascade)
+
+  ikhtisarJabatan String? @db.Text
+  uraianTugas     String? @db.Text
+
+  bahanKerja     Json?
+  perangkatKerja Json?
+  hasilKerja     Json?
+  tanggungjawab  Json?
+
+  pangkatGolonganTerendah   String?
+  pangkatGolonganTertinggi  String?
+  pendidikanTerendah        String?
+  bidangPendidikanTerendah  String?
+  pendidikanTertinggi       String?
+  bidangPendidikanTertinggi String?
+
+  kursusPelatihanPemimpin Json?
+  pengalamanKerja         Json?
+  pengetahuan             Json?
+  keterampilan            Json?
+
+  progressPersen Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  abk ABK?
+
+  @@map("anjab")
+}
+
+// ==========================================
+// ABK
+// ==========================================
+
+model ABK {
+  id      String @id @default(cuid())
+  anjabId String @unique
+  anjab   Anjab  @relation(fields: [anjabId], references: [id], onDelete: Cascade)
+
+  detailBebanKerja   Json?
+  totalBebanKerja    Float?
+  efektivitasNilai   Float?
+  efektivitasJabatan EfektivitasJabatan?
+  kebutuhanPegawai   Float?
+  statusKebutuhan    StatusKebutuhan?
+  jumlahKurangLebih  Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("abk")
+}
+
+// ==========================================
+// BEZETING
+// ==========================================
+
+model Bezeting {
+  id        String  @id @default(cuid())
+  jabatanId String
+  jabatan   Jabatan @relation(fields: [jabatanId], references: [id], onDelete: Cascade)
+
+  namaJabatan          String
+  golonganSaranRendah  String?
+  golonganSaranTinggi  String?
+  jumlahPNS            Int      @default(0)
+  jumlahPPPK           Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("bezeting")
+}
+
+// ==========================================
+// PEMANGKU
+// ==========================================
+
+model Pemangku {
+  id               String        @id @default(cuid())
+  jabatanId        String
+  jabatan          Jabatan       @relation(fields: [jabatanId], references: [id], onDelete: Cascade)
+  namaPemangku     String
+  nip              String?       @unique
+  statusPegawai    StatusPegawai
+  pangkatGolongan  String?
+  pendidikan       String?
+  bidangPendidikan String?
+  pengalamanKerja  Json?
+  keterampilan     Json?
+  kondisiFisik     KondisiFisik? @default(BAIK)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@map("pemangku")
+}
+
+// ==========================================
+// DATA GURU
+// ==========================================
+
+model Guru {
+  id                 String        @id @default(cuid())
+  sekolahId          String
+  sekolah            Sekolah       @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+  nip                String?       @unique
+  nama               String
+  statusPegawai      StatusPegawai
+  jenisKelamin       String?
+  tempatLahir        String?
+  tanggalLahir       DateTime?
+  pangkatGolongan    String?
+  tmtGolongan        DateTime?
+  pendidikanTerakhir String?
+  bidangStudi        String?
+  mataPelajaran      String?
+  statusSertifikasi  Boolean?      @default(false)
+  nomorSertifikasi   String?
+  tmtMasuk           DateTime?
+  alamat             String?
+  telepon            String?
+  email              String?
+  foto               String?
+  aktif              Boolean       @default(true)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@map("guru")
+}
+
+// ==========================================
+// PERHITUNGAN KEBUTUHAN GURU
+// ==========================================
+
+model PerhitunganGuru {
+  id                 String           @id @default(cuid())
+  sekolahId          String
+  sekolah            Sekolah          @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+  tahunAjaran        String
+  jumlahRombel       Int?
+  jumlahJamPelajaran Int?
+  bebanMengajar      Int?             @default(24)
+  jumlahGuruTersedia Int?
+  jumlahGuruPNS      Int?
+  jumlahGuruPPPK     Int?
+  kebutuhanGuru      Float?
+  kekuranganGuru     Int?
+  kelebihanGuru      Int?
+  statusKebutuhan    StatusKebutuhan?
+  prediksiData       Json?
+  catatan            String?          @db.Text
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@unique([sekolahId, tahunAjaran])
+  @@map("perhitungan_guru")
+}
+
+// ==========================================
+// REKAP FINAL
+// ==========================================
+
+model RekapFinal {
+  id              String   @id @default(cuid())
+  tahun           String   @unique
+  totalSekolah    Int?
+  totalGuruPNS    Int?
+  totalGuruPPPK   Int?
+  totalKebutuhan  Int?
+  totalKekurangan Int?
+  totalKelebihan  Int?
+  distribusiData  Json?
+  rekomendasiData Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("rekap_final")
+}
+
+// ==========================================
+// PROFIL ADMIN PUSAT
+// ==========================================
+
+model ProfilAdminPusat {
+  id             String   @id @default(cuid())
+  kabupatenKota  String?
+  namaDaerah     String?
+  namaKepala     String?
+  namaWakil      String?
+  namaSekretaris String?
+  telepon        String?
+  email          String?
+  alamat         String?
+  opd            String?
+  logoUrl        String?
+  websiteUrl     String?
+  hakiInfo       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("profil_admin_pusat")
+}
+
+// ==========================================
+// LANDING CONFIG
+// ==========================================
+
+model LandingConfig {
+  id         String   @id @default(cuid())
+  logoUrl    String?
+  namaUnit   String?
+  keterangan String?  @db.Text
+  slides     Json?
+  alamat     String?
+  email      String?
+  kontak     String?
+  hakiInfo   String?
+  updatedAt  DateTime @updatedAt
+
+  @@map("landing_config")
+}
