@@ -303,8 +303,12 @@ function fmtDate(d: string) {
 const tdStyle: React.CSSProperties = { padding: "13px 16px", color: "rgba(255,255,255,0.7)", fontSize: 13 };
 const rowBtnStyle = (color: string): React.CSSProperties => ({ padding: "5px 12px", fontSize: 12, fontWeight: 600, background: `${color}15`, color, border: `1px solid ${color}30`, borderRadius: 6, cursor: "pointer", transition: "all 0.15s" });
 const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "white", fontSize: 14, outline: "none", boxSizing: "border-box" };
+// selectStyle tetap ada untuk digunakan di file ini jika perlu, tapi TIDAK di-export
 const selectStyle: React.CSSProperties = { ...inputStyle, appearance: "none" as const, cursor: "pointer" };
 const cancelBtnStyle: React.CSSProperties = { padding: "9px 18px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "rgba(255,255,255,0.6)", fontSize: 13, fontWeight: 600, cursor: "pointer" };
 const submitBtnStyle: React.CSSProperties = { padding: "9px 20px", background: "linear-gradient(135deg,#3b82f6,#2563eb)", border: "none", borderRadius: 8, color: "white", fontSize: 13, fontWeight: 700, cursor: "pointer" };
-// export for re-use in same file
-export { selectStyle };
+
+// ❌ DIHAPUS: export { selectStyle };
+// Jika selectStyle dibutuhkan di file lain, pindahkan ke:
+// src/lib/styles.ts  →  export const selectStyle: React.CSSProperties = { ... }
+// lalu import dari sana
