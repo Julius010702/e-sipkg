@@ -1,4 +1,6 @@
-// src/app/api/auth/login/route.ts — REPLACE SELURUH ISI
+// 🔥 WAJIB: paksa pakai Node.js runtime (bukan Edge)
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { loginUser, createTokenCookie } from "@/lib/auth";
 
@@ -29,16 +31,16 @@ export async function POST(req: NextRequest) {
       redirectTo: result.redirectTo,
     });
 
-    // Set cookie dengan semua atribut yang benar
+    // Set cookie auth
     const cookie = createTokenCookie(result.token!);
     response.cookies.set({
-      name:     cookie.name,
-      value:    cookie.value,
+      name: cookie.name,
+      value: cookie.value,
       httpOnly: cookie.httpOnly,
-      secure:   cookie.secure,
+      secure: cookie.secure,
       sameSite: cookie.sameSite,
-      maxAge:   cookie.maxAge,
-      path:     cookie.path,
+      maxAge: cookie.maxAge,
+      path: cookie.path,
     });
 
     return response;

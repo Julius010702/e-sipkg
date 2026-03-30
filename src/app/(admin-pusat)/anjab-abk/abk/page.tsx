@@ -74,7 +74,6 @@ export default function AdminABKPage() {
           <h1 style={{ fontSize: isMobile?18:22, fontWeight:800, color:"white", margin:0 }}>Rekap Analisis Beban Kerja</h1>
           <p style={{ fontSize:12, color:"rgba(255,255,255,0.4)", marginTop:3, marginBottom:0 }}>Hasil kalkulasi beban kerja dan kebutuhan pegawai seluruh jabatan</p>
         </div>
-        {/* Nav links — scroll horizontal on mobile */}
         <div style={{ display:"flex", gap:8, flexShrink:0 }}>
           <Link href="/anjab-abk" style={navLinkStyle("rgba(255,255,255,0.06)","rgba(255,255,255,0.1)","rgba(255,255,255,0.6)", isMobile)}>← Rekap</Link>
           <Link href="/anjab-abk/anjab" style={navLinkStyle("rgba(59,130,246,0.12)","rgba(59,130,246,0.25)","#3b82f6", isMobile)}>📋 ANJAB</Link>
@@ -82,13 +81,13 @@ export default function AdminABKPage() {
         </div>
       </div>
 
-      {/* ── Summary — 2 col mobile, 4 col desktop ── */}
+      {/* ── Summary ── */}
       <div style={{ display:"grid", gridTemplateColumns: isMobile?"repeat(2,1fr)":"repeat(4,1fr)", gap:10 }}>
         {[
-          { label:"Total ABK",        value:totalABK, color:"#3b82f6" },
-          { label:"EJ Sangat Baik (A)",value:ejA,     color:"#10b981" },
-          { label:"EJ Baik-Cukup (B-C)",value:ejBC,  color:"#f59e0b" },
-          { label:"EJ Cukup-Kurang (D-E)",value:ejDE, color:"#ef4444" },
+          { label:"Total ABK",            value:totalABK, color:"#3b82f6" },
+          { label:"EJ Sangat Baik (A)",   value:ejA,      color:"#10b981" },
+          { label:"EJ Baik-Cukup (B-C)",  value:ejBC,     color:"#f59e0b" },
+          { label:"EJ Cukup-Kurang (D-E)",value:ejDE,     color:"#ef4444" },
         ].map(({ label, value, color }) => (
           <div key={label} style={{ background:"#0d1117", border:"1px solid rgba(255,255,255,0.07)", borderLeft:`3px solid ${color}`, borderRadius:10, padding:"12px 14px" }}>
             <div style={{ fontSize:10, color:"rgba(255,255,255,0.4)", textTransform:"uppercase", letterSpacing:"0.07em", lineHeight:1.4 }}>{label}</div>
@@ -115,7 +114,7 @@ export default function AdminABKPage() {
         </select>
       </div>
 
-      {/* ── Content: Cards (mobile) / Table (desktop) ── */}
+      {/* ── Content ── */}
       {isMobile ? (
         <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
           {loading ? (
@@ -152,7 +151,8 @@ export default function AdminABKPage() {
                     {item.statusKebutuhan}
                   </span>
                 )}
-                <Link href={`/anjab-abk?jabatanId=${item.jabatan.id}`} style={{ marginLeft:"auto", padding:"4px 10px", background:"rgba(59,130,246,0.12)", border:"1px solid rgba(59,130,246,0.25)", borderRadius:6, fontSize:11, fontWeight:700, color:"#3b82f6", textDecoration:"none" }}>
+                {/* ✅ FIX: /anjab-abk/detail?jabatanId= */}
+                <Link href={`/anjab-abk/detail?jabatanId=${item.jabatan.id}`} style={{ marginLeft:"auto", padding:"4px 10px", background:"rgba(59,130,246,0.12)", border:"1px solid rgba(59,130,246,0.25)", borderRadius:6, fontSize:11, fontWeight:700, color:"#3b82f6", textDecoration:"none" }}>
                   Detail
                 </Link>
               </div>
@@ -228,7 +228,8 @@ export default function AdminABKPage() {
                       ) : <span style={{ color:"rgba(255,255,255,0.2)", fontSize:12 }}>—</span>}
                     </td>
                     <td style={td}>
-                      <Link href={`/anjab-abk?jabatanId=${item.jabatan.id}`} style={{ padding:"5px 12px", background:"rgba(59,130,246,0.12)", border:"1px solid rgba(59,130,246,0.25)", borderRadius:6, fontSize:11, fontWeight:700, color:"#3b82f6", textDecoration:"none", whiteSpace:"nowrap" }}>
+                      {/* ✅ FIX: /anjab-abk/detail?jabatanId= */}
+                      <Link href={`/anjab-abk/detail?jabatanId=${item.jabatan.id}`} style={{ padding:"5px 12px", background:"rgba(59,130,246,0.12)", border:"1px solid rgba(59,130,246,0.25)", borderRadius:6, fontSize:11, fontWeight:700, color:"#3b82f6", textDecoration:"none", whiteSpace:"nowrap" }}>
                         Detail
                       </Link>
                     </td>
