@@ -1,0 +1,340 @@
+// ============================================================
+// PRISMA SCHEMA - SISTEM PEMERATAAN GURU (e-SIPKG)
+// Database: PostgreSQL
+// Semua user (SEKOLAH, BIRO, ADMIN) login pakai NIP
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JenisSekolah {
+  SMA
+  SMK
+  SLB
+}
+
+enum StatusGuru {
+  PNS
+  PPPK
+}
+
+enum StatusData {
+  DRAFT
+  DIKIRIM
+  DISETUJUI
+  DITOLAK
+}
+
+enum RoleUser {
+  SEKOLAH
+  WILAYAH
+  BIRO
+  ADMIN
+}
+
+enum JenjangJabatan {
+  AHLI_PERTAMA
+  AHLI_MUDA
+  AHLI_MADYA
+  AHLI_UTAMA
+}
+
+// Status pengajuan permohonan jabatan baru dari sekolah
+enum StatusPermohonan {
+  PENDING
+  DISETUJUI
+  DITOLAK
+}
+
+model User {
+  id        String   @id @default(cuid())
+  // NIP wajib untuk SEMUA role (SEKOLAH, BIRO, ADMIN) — dipakai sebagai username login
+  // @db.VarChar(20) membatasi panjang NIP agar tidak salah input
+  nip       String   @unique @db.VarChar(20)
+  password  String
+  nama      String
+  role      RoleUser
+  isAktif   Boolean  @default(true)
+  passwordChangedAt DateTime @default(now()) @db.Timestamptz(3)
+
+  // Email opsional — hanya sebagai info kontak, bukan untuk login
+  email     String?  @unique
+
+  sekolahId String?  @unique
+  sekolah   Sekolah? @relation(fields: [sekolahId], references: [id])
+
+  // Hanya user WILAYAH yang terhubung dengan satu wilayah (kabupaten/kota) —
+  // akses monitoring read-only, dibatasi WHERE sekolah.wilayahId = ini.
+  wilayahId String?
+  wilayah   Wilayah? @relation(fields: [wilayahId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  validasiLogs         ValidasiLog[]
+  // Permohonan jabatan yang diajukan oleh user ini (biasanya role SEKOLAH)
+  permohonanDiajukan   PermohonanJabatan[] @relation("PermohonanDiajukan")
+  // Permohonan jabatan yang sudah diproses (disetujui/ditolak) oleh user ini (role ADMIN)
+  permohonanDiproses   PermohonanJabatan[] @relation("PermohonanDiproses")
+  // Notifikasi yang ditujukan langsung ke user ini (mis. sekolah tertentu)
+  notifikasi           Notifikasi[]
+  // Jejak aktivitas user ini (login, kelola pengguna, validasi, dsb) —
+  // dipakai panel "Aktivitas Terbaru" di Dashboard Admin
+  activityLogs         ActivityLog[]
+
+  @@map("users")
+}
+
+model Notifikasi {
+  id String @id @default(cuid())
+
+  // Ditujukan ke SATU user tertentu (mis. akun sekolah yang mengajukan),
+  // ATAU ke semua user dengan role tertentu (mis. semua BIRO/ADMIN) kalau
+  // userId dikosongkan. Salah satu dari keduanya wajib diisi.
+  userId String?
+  user   User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   RoleUser?
+
+  judul  String
+  pesan  String
+  link   String?
+  isRead Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@map("notifikasi")
+}
+
+// Jejak aktivitas untuk panel "Aktivitas Terbaru" di Dashboard Admin.
+// namaUser disimpan terpisah supaya nama tetap tampil walau akun user-nya
+// nanti dihapus (User? nullable, onDelete: SetNull — riwayat tidak ikut hilang).
+model ActivityLog {
+  id     String @id @default(cuid())
+  userId String?
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  namaUser String
+  aksi     String
+
+  // Kalau aktivitas ini terkait satu sekolah tertentu (kirim data, validasi,
+  // dsb) — dipakai untuk memfilter "Aktivitas Terbaru" per wilayah.
+  sekolahId String?
+  sekolah   Sekolah? @relation(fields: [sekolahId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@map("activity_log")
+}
+
+// Pengumuman yang tampil di Dashboard Admin.
+model Pengumuman {
+  id      String   @id @default(cuid())
+  judul   String
+  isi     String
+  tanggal DateTime
+
+  // Nama pembuat pengumuman (Biro/Admin yang membuatnya saat itu) —
+  // ditampilkan sebagai "Dari:" di panel & notifikasi.
+  pengirim String @default("Biro Organisasi")
+
+  // Opsional — mis. batas waktu pengumpulan/pengiriman data.
+  batasWaktu DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@map("pengumuman")
+}
+
+model Wilayah {
+  id       String    @id @default(cuid())
+  nama     String    @unique
+  provinsi String    @default("Nusa Tenggara Timur")
+  sekolah  Sekolah[]
+
+  // User dengan role WILAYAH yang ditugaskan memantau wilayah ini
+  users User[]
+
+  @@map("wilayah")
+}
+
+model Sekolah {
+  id            String       @id @default(cuid())
+  nama          String
+  jenisSekolah  JenisSekolah
+  npsn          String?      @unique
+  alamat        String?
+  wilayahId     String
+  wilayah       Wilayah      @relation(fields: [wilayahId], references: [id])
+  jumlahSiswa   Int          @default(0)
+  jumlahRombel  Int          @default(0)
+  statusData    StatusData   @default(DRAFT)
+  kepalaSekolah String?
+  nipKepala     String?
+
+  // Foto profil sekolah & kepala sekolah — disimpan sebagai teks panjang
+  // (data URL base64, atau URL hasil upload ke storage eksternal seperti
+  // Vercel Blob / Cloudinary / S3 jika nanti dipindahkan)
+  fotoSekolah   String?      @db.Text
+  fotoKepala    String?      @db.Text
+
+  user               User?
+  guruJabatan        GuruJabatan[]
+  kompetensiKeahlian KompetensiKeahlian[]
+  validasiLogs       ValidasiLog[]
+  periodeLaporan     PeriodeLaporan[]
+  permohonanJabatan  PermohonanJabatan[]
+  activityLogs       ActivityLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sekolah")
+}
+
+model JabatanGuru {
+  id          String  @id @default(cuid())
+  namaJabatan String  @unique
+  kode        String? @unique
+  jamStandar  Int     @default(24)
+  isBK        Boolean @default(false)
+  deskripsi   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("jabatan_guru")
+}
+
+// Permohonan jabatan baru dari sekolah — dikirim saat nama jabatan yang
+// dibutuhkan belum ada di master JabatanGuru. Admin meninjau lewat Panel
+// Admin; kalau disetujui, backend otomatis membuat entry baru di
+// JabatanGuru supaya langsung muncul di dropdown form sekolah.
+model PermohonanJabatan {
+  id          String            @id @default(cuid())
+  namaJabatan String
+  alasan      String?
+  status      StatusPermohonan  @default(PENDING)
+  catatanAdmin String?
+
+  sekolahId String
+  sekolah   Sekolah @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+
+  diajukanOlehId String
+  diajukanOleh   User   @relation("PermohonanDiajukan", fields: [diajukanOlehId], references: [id])
+
+  diprosesOlehId String?
+  diprosesOleh   User?   @relation("PermohonanDiproses", fields: [diprosesOlehId], references: [id])
+  diprosesPada   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("permohonan_jabatan")
+}
+
+model GuruJabatan {
+  id        String  @id @default(cuid())
+  sekolahId String
+  sekolah   Sekolah @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+
+  namaJabatan    String
+  jenjangJabatan JenjangJabatan @default(AHLI_PERTAMA)
+  isBK           Boolean        @default(false)
+
+  periodeId String?
+  periode   PeriodeLaporan? @relation(fields: [periodeId], references: [id])
+
+  jumlahGuruPNS        Int   @default(0)
+  jumlahGuruPPPK       Int   @default(0)
+  jamMengajarPerMinggu Int   @default(24)
+  jumlahRombel         Int   @default(1)
+
+  kebutuhanGuru Float @default(0)
+  tersedia      Int   @default(0)
+  selisih       Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sekolahId, namaJabatan, jenjangJabatan, periodeId])
+  @@map("guru_jabatan")
+}
+
+model KompetensiKeahlian {
+  id           String  @id @default(cuid())
+  sekolahId    String
+  sekolah      Sekolah @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+  namaJurusan  String
+  bidangStudi  String?
+  jumlahSiswa  Int     @default(0)
+  jumlahRombel Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("kompetensi_keahlian")
+}
+
+model PeriodeLaporan {
+  id           String   @id @default(cuid())
+  nama         String
+  tahunAjaran  String
+  semester     Int
+  tanggalMulai DateTime
+  tanggalAkhir DateTime
+  isAktif      Boolean  @default(false)
+
+  sekolah     Sekolah[]
+  guruJabatan GuruJabatan[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("periode_laporan")
+}
+
+model ValidasiLog {
+  id         String     @id @default(cuid())
+  sekolahId  String
+  sekolah    Sekolah    @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  statusBaru StatusData
+  catatan    String?
+
+  createdAt DateTime @default(now())
+
+  @@map("validasi_log")
+}
+
+model KontakInfo {
+  id           String   @id @default("singleton")  // hanya 1 record
+  unit         String   @default("Bagian Kelembagaan dan Analisis Jabatan")
+  alamat       String   @default("Jl. El Tari No. 52, Kota Kupang, NTT")
+  telepon      String   @default("(0380) 821710")
+  email        String   @default("biroorganisasi@nttprov.go.id")
+  jamKerja     String   @default("Senin–Jumat, 07.30–16.00 WITA")
+  namaInstansi String   @default("Biro Organisasi Setda")
+  namaProvinsi String   @default("Provinsi Nusa Tenggara Timur")
+  emailAkses   String   @default("biroorganisasi@nttprov.go.id")
+  updatedAt    DateTime @updatedAt
+}
+
+
+model Slide {
+  id        String   @id @default(cuid())
+  src       String
+  alt       String
+  urutan    Int      @default(0)
+  aktif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("slides")
+}
