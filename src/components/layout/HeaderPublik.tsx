@@ -251,16 +251,6 @@ const HEADER_CSS = `
   white-space: nowrap;
 }
 
-/* Logo BerAKHLAK */
-.berakhlak-badge {
-  display: inline-flex; align-items: center;
-  height: clamp(30px, 3.4vw, 38px);
-  flex-shrink: 0;
-}
-.berakhlak-badge img {
-  height: 100%; width: auto; display: block;
-}
-
 /* Tombol Masuk — dirender seperti cap/stempel resmi (biru, khas cap dinas) */
 .masuk-btn {
   display: inline-flex; align-items: center; gap: 7px;
@@ -337,7 +327,6 @@ const HEADER_CSS = `
   .hamburger-btn     { display: flex; }
   .header-nav        { display: none; }
   .strip-code        { display: none; }
-  .berakhlak-badge   { height: 28px; }
 }
 @media (min-width: 768px) and (max-width: 1023px) {
   .header-vdivider   { display: none; }
@@ -470,11 +459,6 @@ export default function HeaderPublik() {
               <p className="sys-label">Sistem Informasi</p>
               <p className="sys-title">PERHITUNGAN-KEBUTUHAN-GURU</p>
             </div>
-
-            <span className="berakhlak-badge">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/berakhlak.png" alt="BerAKHLAK — Bangga Melayani Bangsa" />
-            </span>
 
             {/* Tombol Masuk — desktop ≥768px, gaya cap/stempel resmi */}
             <Link href="/login" className="masuk-btn">
