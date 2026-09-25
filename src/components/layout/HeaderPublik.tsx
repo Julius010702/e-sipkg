@@ -178,27 +178,38 @@ const HEADER_CSS = `
 }
 .header-logo-img {
   position: relative;
-  width: clamp(32px, 4vw, 42px);
-  height: clamp(32px, 4vw, 42px);
+  width: clamp(38px, 4.6vw, 48px);
+  height: clamp(38px, 4.6vw, 48px);
   flex-shrink: 0;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #FBD34D 0%, var(--brass-light) 45%, var(--brass) 100%);
+  border: 1px solid rgba(255,255,255,0.35);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.45);
+  padding: 5px;
+}
+.header-logo-img-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 .header-wordmark {
   font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(16px, 1.9vw, 21px);
-  font-weight: 600;
-  color: var(--paper);
-  line-height: 1;
-  letter-spacing: -0.01em;
-}
-.header-wordmark em {
-  font-style: normal;
+  font-size: clamp(14px, 1.6vw, 18px);
+  font-weight: 700;
   color: var(--brass-light);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  display: block;
+  white-space: nowrap;
 }
 .header-logo-sub {
-  font-size: clamp(8.5px, 0.95vw, 10.5px);
-  color: rgba(255,255,255,0.55);
-  letter-spacing: 0.03em;
-  margin-top: 3px;
+  font-size: clamp(8.5px, 0.9vw, 10.5px);
+  font-weight: 700;
+  color: rgba(191,208,235,0.85);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 5px;
   display: block;
   white-space: nowrap;
 }
@@ -427,18 +438,20 @@ export default function HeaderPublik() {
           {/* Logo + wordmark */}
           <Link href="/" className="header-logo">
             <div className="header-logo-img">
-              <Image
-                src="/logo-ntt.png"
-                alt="Logo Provinsi NTT"
-                fill
-                className="object-contain"
-                sizes="(max-width:640px) 32px, (max-width:1024px) 38px, 42px"
-                priority
-              />
+              <div className="header-logo-img-inner">
+                <Image
+                  src="/logo-ntt.png"
+                  alt="Logo Provinsi NTT"
+                  fill
+                  className="object-contain"
+                  sizes="(max-width:640px) 28px, (max-width:1024px) 32px, 38px"
+                  priority
+                />
+              </div>
             </div>
             <div>
-              <span className="header-wordmark"><em>e-</em>SIPKG</span>
-              <span className="header-logo-sub">Biro Organisasi · Setda Prov. NTT</span>
+              <span className="header-wordmark">Biro Organisasi</span>
+              <span className="header-logo-sub">Prov. Nusa Tenggara Timur</span>
             </div>
           </Link>
 
