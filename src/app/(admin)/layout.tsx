@@ -13,11 +13,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const userName = session?.nama ?? 'Admin'
   return (
     <>
-      <div className="hidden md:flex min-h-dvh bg-[#f8f9fb]">
+      <div className="hidden md:flex h-dvh bg-[#f8f9fb]">
         <SidebarAdmin userName={userName} />
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           <HeaderAdminBar userName={userName} userRole="Super Admin" />
-          <main className="flex-1 w-full overflow-x-hidden">
+          <main className="flex-1 w-full overflow-x-hidden overflow-y-auto">
             <div className="w-full max-w-6xl mx-auto px-5 lg:px-6 pt-5 pb-6">
               {children}
             </div>

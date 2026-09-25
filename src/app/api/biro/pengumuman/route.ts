@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   const bagianBatasWaktu = data.batasWaktu
     ? `\n\n📅 Batas waktu: ${data.batasWaktu.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`
     : ''
-  const pesanNotif = `${data.isi}${bagianBatasWaktu}\n\n📢 Dari: ${data.pengirim}`
+  const pesanNotif = `${data.isi}${bagianBatasWaktu}`
 
   await notifRole('SEKOLAH', `Pengumuman: ${data.judul}`, pesanNotif, '/dashboard')
 

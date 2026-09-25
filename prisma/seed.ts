@@ -185,6 +185,7 @@ async function main() {
   console.log('  Role    │ NIP                 │ Password')
   console.log('  ────────┼─────────────────────┼───────────')
   console.log('  ADMIN   │ 000000000000000001  │ admin123')
+  console.log('  WILAYAH │ 000000000000000003  │ wilayah123')
   console.log('  BIRO    │ 000000000000000002  │ biro123')
   console.log('  SEKOLAH │ 19850101201001001   │ sekolah123')
   console.log('')

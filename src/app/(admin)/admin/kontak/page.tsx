@@ -7,6 +7,7 @@ type KontakData = {
   unit: string
   alamat: string
   telepon: string
+  whatsapp: string
   email: string
   jamKerja: string
   namaInstansi: string
@@ -18,6 +19,7 @@ const DEFAULT: KontakData = {
   unit:         'Bagian Kelembagaan dan Analisis Jabatan',
   alamat:       'Jl. El Tari No. 52, Kota Kupang, NTT',
   telepon:      '(0380) 821710',
+  whatsapp:     '',
   email:        'biroorganisasi@nttprov.go.id',
   jamKerja:     'Senin–Jumat, 07.30–16.00 WITA',
   namaInstansi: 'Biro Organisasi Setda',
@@ -77,6 +79,7 @@ function PreviewCard({ data }: { data: KontakData }) {
           { label: 'Unit',      value: data.unit },
           { label: 'Alamat',    value: data.alamat },
           { label: 'Telepon',   value: data.telepon },
+          { label: 'WhatsApp',  value: data.whatsapp },
           { label: 'Email',     value: data.email },
           { label: 'Jam Kerja', value: data.jamKerja },
         ].map(row => (
@@ -308,6 +311,7 @@ export default function AdminKontakPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <Field label="Alamat" name="alamat" value={form.alamat} onChange={handleChange} />
             <Field label="Nomor Telepon" name="telepon" value={form.telepon} onChange={handleChange} type="tel" />
+            <Field label="Nomor WhatsApp" name="whatsapp" value={form.whatsapp} onChange={handleChange} type="tel" hint="Untuk tombol 'Hubungi Administrator' di halaman login. Boleh sama atau beda dari nomor telepon. Contoh: 081234567890" />
             <Field label="Email Publik" name="email" value={form.email} onChange={handleChange} type="email" />
             <Field label="Jam Kerja" name="jamKerja" value={form.jamKerja} onChange={handleChange} hint="Contoh: Senin–Jumat, 07.30–16.00 WITA" />
           </div>

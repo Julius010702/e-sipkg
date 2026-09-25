@@ -1,6 +1,6 @@
 // app/api/admin/kontak/route.ts
-import { NextResponse } from 'next/server'
-import { getSession } from '@/lib/auth'
+import { NextRequest, NextResponse } from 'next/server'
+import { getSessionFromRequest } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 const SINGLETON_ID = 'singleton'
@@ -11,6 +11,7 @@ const DEFAULT_DATA = {
   unit:         'Bagian Kelembagaan dan Analisis Jabatan',
   alamat:       'Jl. El Tari No. 52, Kota Kupang, NTT',
   telepon:      '(0380) 821710',
+  whatsapp:     '',
   email:        'biroorganisasi@nttprov.go.id',
   jamKerja:     'Senin–Jumat, 07.30–16.00 WITA',
   namaInstansi: 'Biro Organisasi Setda',
@@ -33,15 +34,15 @@ export async function GET() {
 }
 
 // ── PUT — update data kontak (hanya superadmin) ───────────────────────────────
-export async function PUT(req: Request) {
-  const session = await getSession()
+export async function PUT(req: NextRequest) {
+  const session = await getSessionFromRequest(req)
   if (!session || session.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 
   try {
     const body = await req.json()
-    const { unit, alamat, telepon, email, jamKerja, namaInstansi, namaProvinsi, emailAkses } = body
+    const { unit, alamat, telepon, whatsapp, email, jamKerja, namaInstansi, namaProvinsi, emailAkses } = body
 
     // Validasi sederhana
     if (!unit || !alamat || !telepon || !email || !jamKerja) {
@@ -50,8 +51,8 @@ export async function PUT(req: Request) {
 
     const data = await prisma.kontakInfo.upsert({
       where:  { id: SINGLETON_ID },
-      update: { unit, alamat, telepon, email, jamKerja, namaInstansi, namaProvinsi, emailAkses },
-      create: { id: SINGLETON_ID, unit, alamat, telepon, email, jamKerja, namaInstansi, namaProvinsi, emailAkses },
+      update: { unit, alamat, telepon, whatsapp, email, jamKerja, namaInstansi, namaProvinsi, emailAkses },
+      create: { id: SINGLETON_ID, unit, alamat, telepon, whatsapp, email, jamKerja, namaInstansi, namaProvinsi, emailAkses },
     })
 
     return NextResponse.json({ data, message: 'Data kontak berhasil disimpan' })

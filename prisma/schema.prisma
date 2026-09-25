@@ -318,6 +318,7 @@ model KontakInfo {
   unit         String   @default("Bagian Kelembagaan dan Analisis Jabatan")
   alamat       String   @default("Jl. El Tari No. 52, Kota Kupang, NTT")
   telepon      String   @default("(0380) 821710")
+  whatsapp     String?  // nomor WA khusus untuk "Hubungi Administrator" — opsional, boleh beda dari telepon kantor
   email        String   @default("biroorganisasi@nttprov.go.id")
   jamKerja     String   @default("Senin–Jumat, 07.30–16.00 WITA")
   namaInstansi String   @default("Biro Organisasi Setda")

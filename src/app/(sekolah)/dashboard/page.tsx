@@ -1,9 +1,11 @@
-﻿import { getSession } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import SekolahAvatar from './SekolahAvatar'
 import HeaderSekolah from './HeaderSekolah'
+import PengumumanPopup from './PengumumanPopup'
 
 // ─── Helper Components ────────────────────────────────────────────────────────
 
@@ -45,12 +47,13 @@ export default async function DashboardSekolahPage() {
     )
   }
 
-  const [sekolah, periodeAktif] = await Promise.all([
+  const [sekolah, periodeAktif, pengumumanList] = await Promise.all([
     prisma.sekolah.findUnique({
       where: { id: session.sekolahId },
       include: { wilayah: true, guruJabatan: true },
     }),
     prisma.periodeLaporan.findFirst({ where: { isAktif: true } }),
+    prisma.pengumuman.findMany({ orderBy: { tanggal: 'desc' }, take: 5 }),
   ])
 
   if (!sekolah) {
@@ -212,6 +215,9 @@ export default async function DashboardSekolahPage() {
 
       {/* ══ LAYOUT ══════════════════════════════════════════════════ */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+        {/* Pengumuman dari Biro — pop-up otomatis + banner berjalan */}
+        <PengumumanPopup />
 
         {/* ── Topbar row: judul + header (periode & notifikasi) + status ─────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
@@ -627,6 +633,45 @@ export default async function DashboardSekolahPage() {
 
           {/* ── RIGHT COLUMN ─────────────────────────────────────── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
+
+            {/* Pengumuman — versi lengkap, permanen di badan Dashboard
+                (bukan cuma pop-up/banner yang bisa ditutup/hilang) */}
+            {pengumumanList.length > 0 && (
+              <div className="ds-card" style={{ overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#d97706" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                  </svg>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#111827' }}>Pengumuman Biro</p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  {pengumumanList.map((p, i) => (
+                    <div key={p.id} style={{ padding: '13px 16px', borderTop: i > 0 ? '1px solid #f6f6f6' : 'none' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 10.5, color: '#9ca3af' }}>
+                          {p.tanggal.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </span>
+                        {p.batasWaktu && (
+                          <span style={{ fontSize: 10, fontWeight: 600, background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', borderRadius: 99, padding: '1.5px 8px' }}>
+                            Batas: {p.batasWaktu.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          </span>
+                        )}
+                      </div>
+                      <p style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#111827' }}>{p.judul}</p>
+                      <p style={{ margin: '0 0 8px', fontSize: 12, color: '#4b5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{p.isi}</p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                        <div style={{ position: 'relative', width: 18, height: 18, flexShrink: 0 }}>
+                          <Image src="/logo-ntt.png" alt="Logo NTT" fill className="object-contain" sizes="18px" />
+                        </div>
+                        <p style={{ margin: 0, fontSize: 10.5, color: '#9ca3af' }}>
+                          Biro Organisasi — Bagian Kelembagaan dan Analisis Jabatan
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Status Data Card */}
             <div className="ds-card" style={{ padding: '14px 16px' }}>

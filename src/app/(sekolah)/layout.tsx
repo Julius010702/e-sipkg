@@ -12,10 +12,10 @@ export default async function SekolahLayout({ children }: { children: React.Reac
   const userName = session?.nama ?? 'Portal Sekolah'
   return (
     <>
-      <div className="hidden md:flex min-h-dvh bg-[#f5f5f5]">
+      <div className="hidden md:flex h-dvh bg-[#f5f5f5]">
         <SidebarSekolah userName={userName} />
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-          <main className="flex-1 w-full overflow-x-hidden">
+          <main className="flex-1 w-full overflow-x-hidden overflow-y-auto">
             <div className="w-full max-w-5xl mx-auto px-5 lg:px-6 pt-5 pb-6">
               {children}
             </div>

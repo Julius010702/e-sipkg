@@ -19,10 +19,10 @@ export default async function WilayahLayout({ children }: { children: React.Reac
 
   return (
     <>
-      <div className="hidden md:flex min-h-dvh bg-gray-50">
+      <div className="hidden md:flex h-dvh bg-gray-50">
         <SidebarWilayah userName={userName} wilayahNama={wilayahNama} />
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-          <main className="flex-1 w-full overflow-x-hidden">
+          <main className="flex-1 w-full overflow-x-hidden overflow-y-auto">
             <div className="w-full max-w-6xl mx-auto px-5 lg:px-6 pt-5 pb-6">
               {children}
             </div>

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
@@ -286,7 +286,6 @@ function PrintableReport({
               <th className="border-2 border-gray-600 px-1.5 py-2 text-center font-bold">Ahli<br/>Muda</th>
               <th className="border-2 border-gray-600 px-1.5 py-2 text-center font-bold">Ahli<br/>Madya</th>
               <th className="border-2 border-gray-600 px-1.5 py-2 text-center font-bold">Ahli<br/>Utama</th>
-              <th className="border-2 border-gray-600 px-2 py-2 text-center font-bold">Rumus</th>
               <th className="border-2 border-gray-600 px-2 py-2 text-center font-bold">Kebutuhan</th>
               <th className="border-2 border-gray-600 px-2 py-2 text-center font-bold">PNS</th>
               <th className="border-2 border-gray-600 px-2 py-2 text-center font-bold">PPPK</th>
@@ -299,9 +298,6 @@ function PrintableReport({
             {groupedJabatan.map((g, i) => {
               const keb   = Math.round(g.kebutuhanGuru)
               const sel   = g.totalASN - keb
-              const rumus = g.isBK
-                ? `${data.jumlahSiswa} / 150 = ${keb}`
-                : `(${g.jamMengajarPerMinggu}×${g.jumlahRombel})/24=${keb}`
               return (
                 <tr key={g.namaJabatan} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                   <td className="border border-gray-300 px-2 py-1.5 text-center">{i + 1}</td>
@@ -313,11 +309,6 @@ function PrintableReport({
                   <td className="border border-gray-300 px-1.5 py-1.5 text-center">{g.pnsByJenjang.AHLI_MUDA || ''}</td>
                   <td className="border border-gray-300 px-1.5 py-1.5 text-center">{g.pnsByJenjang.AHLI_MADYA || ''}</td>
                   <td className="border border-gray-300 px-1.5 py-1.5 text-center">{g.pnsByJenjang.AHLI_UTAMA || ''}</td>
-                  <td className="border border-gray-300 px-2 py-1.5 text-center">
-                    <code className="text-[10px] bg-gray-100 text-gray-600 px-1 py-0.5 rounded font-mono">
-                      {rumus}
-                    </code>
-                  </td>
                   <td className="border border-gray-300 px-2 py-1.5 text-center font-semibold">{keb}</td>
                   <td className="border border-gray-300 px-2 py-1.5 text-center">{g.totalPNS}</td>
                   <td className="border border-gray-300 px-2 py-1.5 text-center">{g.totalPPPK}</td>
@@ -333,7 +324,7 @@ function PrintableReport({
             })}
             {/* Total row */}
             <tr className="bg-blue-900 text-white font-bold">
-              <td className="border-2 border-gray-600 px-2 py-2 text-center" colSpan={7}>TOTAL</td>
+              <td className="border-2 border-gray-600 px-2 py-2 text-center" colSpan={6}>TOTAL</td>
               <td className="border-2 border-gray-600 px-2 py-2 text-center">{totalKebutuhan}</td>
               <td className="border-2 border-gray-600 px-2 py-2 text-center">{totalPNS}</td>
               <td className="border-2 border-gray-600 px-2 py-2 text-center">{totalPPPK}</td>

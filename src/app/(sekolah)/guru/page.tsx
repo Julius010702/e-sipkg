@@ -580,8 +580,8 @@ export default function GuruPage() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             { label: 'Total Jabatan',  value: groupedList.length,  color: 'text-gray-800' },
-            { label: 'Total PNS',      value: totalPNS,         color: 'text-blue-700' },
-            { label: 'Total PPPK',     value: totalPPPK,        color: 'text-indigo-700' },
+            { label: 'Total Guru PNS',      value: totalPNS,         color: 'text-blue-700' },
+            { label: 'Total Guru PPPK',     value: totalPPPK,        color: 'text-indigo-700' },
             {
               label: totalSelisih < 0 ? 'Kekurangan' : totalSelisih > 0 ? 'Kelebihan' : 'Terpenuhi',
               value: Math.abs(totalSelisih),

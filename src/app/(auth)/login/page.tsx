@@ -1,41 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const CAPTCHA_DURATION = 15;
-
-// ─── Kontak Administrator — sesuaikan dengan data nyata ──────────────────────
-const ADMIN_CONTACTS = [
-  {
-    icon: "phone",
-    label: "Telepon",
-    value: "(0380) 123-4567",
-    href: "tel:+623801234567",
-    color: "#0a1f4e",
-    bg: "#eff6ff",
-    border: "#bfdbfe",
-  },
-  {
-    icon: "whatsapp",
-    label: "WhatsApp",
-    value: "0812-3456-7890",
-    href: "https://wa.me/6281234567890?text=Halo%20Admin%2C%20saya%20butuh%20bantuan%20akses%20e-SIPKG",
-    color: "#15803d",
-    bg: "#f0fdf4",
-    border: "#bbf7d0",
-  },
-  {
-    icon: "email",
-    label: "Email",
-    value: "admin@nttprov.go.id",
-    href: "mailto:admin@nttprov.go.id?subject=Bantuan%20Akses%20e-SIPKG&body=Halo%20Admin%2C%20saya%20membutuhkan%20bantuan%20untuk%20mengakses%20akun%20e-SIPKG.",
-    color: "#92400e",
-    bg: "#fef3c7",
-    border: "#fde68a",
-  },
-];
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
@@ -225,13 +194,55 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   phone: <IcoPhone />, whatsapp: <IcoWA />, email: <IcoEmail />,
 };
 
-// ─── Modal Kontak Admin ───────────────────────────────────────────────────────
+// ─── Modal Kontak Admin — ambil data dari /api/admin/kontak (yang sama
+// dengan yang diatur Admin di halaman Kelola Kontak), bukan data statis ──────
+interface KontakData {
+  telepon: string
+  whatsapp: string
+  emailAkses: string
+  email: string
+  jamKerja: string
+}
+
 function ContactModal({ onClose }: { onClose: () => void }) {
+  const [kontak, setKontak] = useState<KontakData | null>(null)
+  const [loadingKontak, setLoadingKontak] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/admin/kontak')
+      .then(r => r.json())
+      .then(d => setKontak(d.data))
+      .catch(() => setKontak(null))
+      .finally(() => setLoadingKontak(false))
+  }, [])
+
   useEffect(() => {
     const fn = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
   }, [onClose]);
+
+  const teleponDigits  = kontak?.telepon?.replace(/\D/g, '') || ''
+  const whatsappDigits = kontak?.whatsapp?.replace(/\D/g, '') || ''
+  const emailTujuan    = kontak?.emailAkses || kontak?.email || ''
+
+  const contacts = kontak ? [
+    {
+      icon: "phone", label: "Telepon", value: kontak.telepon,
+      href: `tel:+62${teleponDigits.replace(/^0/, '')}`,
+      color: "#0a1f4e", bg: "#eff6ff", border: "#bfdbfe",
+    },
+    ...(whatsappDigits ? [{
+      icon: "whatsapp", label: "WhatsApp", value: kontak.whatsapp,
+      href: `https://wa.me/62${whatsappDigits.replace(/^0/, '')}?text=${encodeURIComponent('Halo Admin, saya butuh bantuan akses e-SIPKG')}`,
+      color: "#15803d", bg: "#f0fdf4", border: "#bbf7d0",
+    }] : []),
+    {
+      icon: "email", label: "Email", value: emailTujuan,
+      href: `mailto:${emailTujuan}?subject=Bantuan%20Akses%20e-SIPKG&body=Halo%20Admin%2C%20saya%20membutuhkan%20bantuan%20untuk%20mengakses%20akun%20e-SIPKG.`,
+      color: "#92400e", bg: "#fef3c7", border: "#fde68a",
+    },
+  ] : []
 
   return (
     <div className="lr-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
@@ -259,7 +270,11 @@ function ContactModal({ onClose }: { onClose: () => void }) {
             <strong>Sebutkan:</strong> nama lengkap, NIP, instansi/sekolah, dan kendala yang dihadapi agar admin dapat memproses lebih cepat.
           </p>
           <div className="lr-contacts">
-            {ADMIN_CONTACTS.map(c => (
+            {loadingKontak ? (
+              <p style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', padding: '12px 0' }}>Memuat kontak…</p>
+            ) : contacts.length === 0 ? (
+              <p style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', padding: '12px 0' }}>Kontak belum tersedia.</p>
+            ) : contacts.map(c => (
               <a key={c.icon} href={c.href}
                 target={c.icon !== "phone" ? "_blank" : undefined}
                 rel="noopener noreferrer"
@@ -279,7 +294,7 @@ function ContactModal({ onClose }: { onClose: () => void }) {
             ))}
           </div>
           <p className="lr-modal-footer">
-            Jam layanan: Senin – Jumat, 08.00 – 16.00 WITA<br />
+            Jam layanan: {kontak?.jamKerja || 'Senin – Jumat, 08.00 – 16.00 WITA'}<br />
             Biro Organisasi · Setda Provinsi Nusa Tenggara Timur
           </p>
         </div>
