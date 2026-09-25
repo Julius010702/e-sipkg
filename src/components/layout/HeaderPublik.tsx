@@ -251,12 +251,9 @@ const HEADER_CSS = `
   white-space: nowrap;
 }
 
-/* Logo BerAKHLAK — di atas pelat putih agar teks hitam/merah terbaca di latar biru */
+/* Logo BerAKHLAK */
 .berakhlak-badge {
   display: inline-flex; align-items: center;
-  background: var(--paper);
-  border-radius: 4px;
-  padding: 3px 8px;
   height: clamp(30px, 3.4vw, 38px);
   flex-shrink: 0;
 }
@@ -340,7 +337,7 @@ const HEADER_CSS = `
   .hamburger-btn     { display: flex; }
   .header-nav        { display: none; }
   .strip-code        { display: none; }
-  .berakhlak-badge   { height: 28px; padding: 2px 6px; }
+  .berakhlak-badge   { height: 28px; }
 }
 @media (min-width: 768px) and (max-width: 1023px) {
   .header-vdivider   { display: none; }
