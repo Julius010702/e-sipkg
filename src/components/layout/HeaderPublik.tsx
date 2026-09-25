@@ -149,7 +149,7 @@ const HEADER_CSS = `
    MAIN HEADER
 ══════════════════════════════════════════════════ */
 .header-main {
-  background: rgba(14,58,143,0.72);
+  background: rgba(14,58,143,0.58);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
   backdrop-filter: blur(12px) saturate(140%);
   position: sticky;
