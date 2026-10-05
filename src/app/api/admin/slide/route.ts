@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma'
 import { getSessionFromRequest } from '@/lib/auth'
 
 // GET tetap publik — dipakai halaman beranda untuk menampilkan banner
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const slides = await prisma.slide.findMany({
     orderBy: { urutan: 'asc' },

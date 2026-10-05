@@ -20,6 +20,8 @@ const DEFAULT_DATA = {
 }
 
 // ── GET — ambil data kontak (public, dipakai di halaman publik) ───────────────
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     let data = await prisma.kontakInfo.findUnique({ where: { id: SINGLETON_ID } })
