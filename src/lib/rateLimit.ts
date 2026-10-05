@@ -1,5 +1,5 @@
 // src/lib/rateLimit.ts
-// Rate limiter sederhana in-memory: batasi percobaan login per NIP + per IP.
+// Rate limiter sederhana in-memory: batasi percobaan login per NIP.
 // Cukup untuk skala internal (bukan aplikasi publik trafik tinggi).
 // Catatan: di Vercel serverless, memory ini reset saat cold start —
 // untuk proteksi lebih kuat di production besar, pertimbangkan Redis/Upstash.

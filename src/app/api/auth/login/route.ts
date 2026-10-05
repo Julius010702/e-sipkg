@@ -16,8 +16,9 @@ export async function POST(req: NextRequest) {
     if (!nip?.trim())      return apiError('NIP wajib diisi')
     if (!password?.trim()) return apiError('Password wajib diisi')
 
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
-    const rateLimitKey = `${nip.trim()}:${ip}`
+    // Kunci pembatas HANYA berdasarkan NIP. Jangan pakai header X-Forwarded-For:
+    // header itu bisa dipalsukan penyerang sehingga pembatas bisa dilewati.
+    const rateLimitKey = nip.trim()
 
     const limit = checkRateLimit(rateLimitKey)
     if (!limit.allowed) {

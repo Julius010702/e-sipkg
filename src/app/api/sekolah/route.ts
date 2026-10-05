@@ -18,6 +18,16 @@ export async function GET(req: NextRequest) {
   if (wilayahId) where.wilayahId = wilayahId
   if (status) where.statusData = status
 
+  // Batasi sesuai peran. Dilakukan SETELAH filter dari query supaya tidak bisa ditimpa.
+  // Sekolah hanya melihat dirinya sendiri; Wilayah hanya sekolah di wilayahnya.
+  if (session.role === 'SEKOLAH') {
+    if (!session.sekolahId) return apiResponse([])
+    where.id = session.sekolahId
+  } else if (session.role === 'WILAYAH') {
+    if (!session.wilayahId) return apiResponse([])
+    where.wilayahId = session.wilayahId
+  }
+
   const data = await prisma.sekolah.findMany({
     where,
     include: { wilayah: true },

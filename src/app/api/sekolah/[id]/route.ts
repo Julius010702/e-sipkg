@@ -8,11 +8,21 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const session = await getSessionFromRequest(req)
   if (!session) return apiError('Unauthorized', 401)
 
+  // Sekolah hanya boleh melihat data sekolahnya sendiri.
+  if (session.role === 'SEKOLAH' && session.sekolahId !== params.id) {
+    return apiError('Forbidden', 403)
+  }
+
   const data = await prisma.sekolah.findUnique({
     where: { id: params.id },
     include: { wilayah: true, guruJabatan: true },
   })
   if (!data) return apiError('Sekolah tidak ditemukan', 404)
+
+  // Akun Wilayah hanya boleh melihat sekolah di wilayahnya sendiri.
+  if (session.role === 'WILAYAH' && data.wilayahId !== session.wilayahId) {
+    return apiError('Forbidden', 403)
+  }
   return apiResponse(data)
 }
 
@@ -20,7 +30,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const session = await getSessionFromRequest(req)
   if (!session) return apiError('Unauthorized', 401)
 
-  // Sekolah hanya bisa edit miliknya sendiri
+  // Hanya SEKOLAH (miliknya sendiri), BIRO, dan ADMIN yang boleh mengubah data sekolah.
+  // Akun WILAYAH bersifat read-only.
+  if (!['SEKOLAH', 'BIRO', 'ADMIN'].includes(session.role)) {
+    return apiError('Forbidden', 403)
+  }
   if (session.role === 'SEKOLAH' && session.sekolahId !== params.id) {
     return apiError('Forbidden', 403)
   }
